@@ -19,6 +19,7 @@
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-misused-promises": "off",
     "no-return-assign": "off",
     "array-callback-return": "off"
   }
