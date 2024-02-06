@@ -1,46 +1,42 @@
 import { Request, Response } from 'express'
 import { logger } from '../utils/logger'
 import { createProductValidation } from '../validations/product.validation'
-import { getProductFromDB } from '../services/product.service'
+import { addProductToDB, getProductById, getProductFromDB } from '../services/product.service'
+import { v4 as uuid4 } from 'uuid'
 
-interface ProductType {
-  product_id: String
-  name: String
-  price: Number
-  size: String
-}
-
-export const createProduct = (req: Request, res: Response) => {
+export const createProduct = async (req: Request, res: Response) => {
+  req.body.product_id = uuid4()
   const { error, value } = createProductValidation(req.body)
   if (error) {
     logger.error('ERR: product - create = ', error.details[0].message)
     return res.status(422).send({ status: false, statuscode: 422, message: error.details[0].message, data: {} })
   }
-  logger.info('Success add new product data')
-  return res.status(200).send({ status: true, statusCode: 200, message: 'Add product success', data: value })
+  try {
+    await addProductToDB(value)
+    logger.info('Success add new product data')
+    return res.status(201).send({ status: true, statusCode: 200, message: 'Add product success' })
+  } catch (error) {
+    logger.error('ERR: product - create = ', error)
+    return res.status(422).send({ status: false, statuscode: 422, message: error })
+  }
 }
 
 export const getProduct = async (req: Request, res: Response) => {
-  const products: any = await getProductFromDB()
-
   const {
-    params: { name }
+    params: { id }
   } = req
 
-  if (name) {
-    const filterProduct = products.filter((product: ProductType) => {
-      if (product.name === name) {
-        return product
-      }
-    })
-    if (filterProduct.length === 0) {
-      logger.info('Data not found')
-      return res.status(404).send({ status: false, statusCode: '404', data: [] })
+  if (id) {
+    const product = await getProductById(id)
+    if (product) {
+      logger.info('Success get prodcut data')
+      return res.status(200).send({ status: true, statusCode: '200', data: product })
+    } else {
+      return res.status(404).send({ status: true, statusCode: '404', message: 'Data Not Found', data: {} })
     }
+  } else {
+    const products: any = await getProductFromDB()
     logger.info('Success get prodcut data')
-    return res.status(200).send({ status: true, statusCode: '200', data: filterProduct[0] })
+    return res.status(200).send({ status: true, statusCode: '200', data: products })
   }
-
-  logger.info('Success get prodcut data')
-  return res.status(200).send({ status: true, statusCode: '200', products })
 }
