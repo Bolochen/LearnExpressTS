@@ -21,6 +21,7 @@
     "@typescript-eslint/no-unsafe-argument": "off",
     "@typescript-eslint/no-misused-promises": "off",
     "no-return-assign": "off",
-    "array-callback-return": "off"
+    "array-callback-return": "off",
+    "@typescript-eslint/no-confusing-void-expression": "off"
   }
 }
