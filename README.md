@@ -1,4 +1,4 @@
-Rest API Tutorial From VIP CODE STUDIO
+Rest API
 
 To install packages
 ```
